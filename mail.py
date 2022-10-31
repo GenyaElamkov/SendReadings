@@ -1,28 +1,32 @@
 import smtplib
+import ssl
 from email.mime.text import MIMEText
 from email.utils import formataddr
-from config import *
+import config
 from string import Template
 import imaplib
 from time import sleep
 
-from_mail = FROM_MAIL  # Почта отправителя.
-to_mail = TO_MAIL  # Почта принимающая.
-password = PASSWORD  # Пароль отправителя.
-host_smtp = HOST_SMTP  # Хост для исходящий сообщений.
-port = PORT  # Порт для исходящих сообщений.
-sender_name = SENDER_NAME  # Отображение имени отправителя рядом с почтой.
-recipient_name = RECIPIENT_NAME  # Отображение имени почты кому приходит письмо.
-subject = SUBJECT  # Тема письма.
+
+from_mail = config.FROM_MAIL  # Почта отправителя.
+to_mail = config.TO_MAIL  # Почта принимающая.
+password = config.PASSWORD  # Пароль отправителя.
+host_smtp = config.HOST_SMTP  # Хост для исходящий сообщений.
+port = config.PORT  # Порт для исходящих сообщений.
+sender_name = config.SENDER_NAME  # Отображение имени отправителя рядом с почтой.
+recipient_name = config.RECIPIENT_NAME  # Отображение имени почты кому приходит письмо.
+subject = config.SUBJECT  # Тема письма.
 
 # Сохранение не работает.
-imap_server = IMAP_SERVER  # Хост для входящий сообщений.
-port_out = PORT_OUT  # Порт для входящих сообщений.
+imap_server = config.IMAP_SERVER  # Хост для входящий сообщений.
+port_out = config.PORT_OUT  # Порт для входящих сообщений.
 
 
 def send_email(month: str, year: int, t1: int, t2: int, t3: int) -> str:
-    s = smtplib.SMTP(host_smtp, port)
-    s.starttls()
+    # SMTP
+    # s = smtplib.SMTP(host_smtp, port)
+    # s.starttls()
+    context = ssl.create_default_context()
 
     try:
         with open('template.html', encoding='utf-8') as file:
@@ -33,22 +37,37 @@ def send_email(month: str, year: int, t1: int, t2: int, t3: int) -> str:
         return "Файл шаблона не найден!"
 
     try:
-        s.login(from_mail, password)
-        s.set_debuglevel(1)
-        msg = MIMEText(set_code_template, 'html')
-        msg['From'] = formataddr((sender_name, from_mail))
+        # SMTP
+        # s.login(from_mail, password)
+        # s.set_debuglevel(1)
 
-        # recipients - Email рассылка,
-        # from_mail - присылаем себе для дальнейшего сохранения в Send.
-        recipients = [to_mail, from_mail]
-        for email in recipients:
-            # msg['To'] = formataddr((recipient_name, ','.join(recipients)))
-            msg['To'] = formataddr((recipient_name, email))
+        # SSL
+        with smtplib.SMTP_SSL(host_smtp, 465, context=context) as s:
+            s.login(from_mail, password)
+            # Включение Дебагера.
+            # s.set_debuglevel(1)
+
+            msg = MIMEText(set_code_template, 'html')
+            msg['From'] = formataddr((sender_name, from_mail))
+
+            # recipients - Email рассылка,
+            # from_mail - присылаем себе для дальнейшего сохранения в Send.
+            recipients = [to_mail, from_mail]
+
+            # Без паузы отправляет сообщения.
+            msg['To'] = formataddr((recipient_name, ','.join(recipients)))
             msg['Subject'] = subject
-            s.sendmail(from_mail, email, msg.as_string())
-            sleep(5)
+            s.sendmail(from_mail, recipients, msg.as_string())
 
-        save_email_send(imap_server, from_mail, password)
+            # Добавляет паузу между отправку сообщений.
+            # for email in recipients:
+            #     msg['To'] = formataddr((recipient_name, email))
+            #     msg['Subject'] = subject
+            #     s.sendmail(from_mail, email, msg.as_string())
+            #     sleep(3)
+
+            save_email_send(imap_server, from_mail, password)
+
         return 'Сообщение отправлено успешно!'
     except Exception as _ex:
         return f"{_ex}\nПожалуйста, проверьте свой логин или пароль!"
@@ -57,6 +76,7 @@ def send_email(month: str, year: int, t1: int, t2: int, t3: int) -> str:
 def save_email_send(imap_server: str, from_mail: str, password: str) -> None:
     imap = imaplib.IMAP4_SSL(imap_server)
     imap.login(from_mail, password)
+
     imap.list()
     imap.select('Inbox', readonly=False)
     result, data = imap.search(None, 'ALL')
@@ -76,6 +96,7 @@ def main():
     t2 = 3148
     t3 = 10299
     out = send_email(month, year, t1, t2, t3)
+    # save_email_send(imap_server, from_mail, password)
     print(out)
 
 

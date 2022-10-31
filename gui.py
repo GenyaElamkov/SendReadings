@@ -95,6 +95,7 @@ class Example(tk.Tk):
                 T3:     {dict_data['T3']}
         '''
         res = askyesno(title='Отправить показания?', message=label)
+
         if res:
             resoult = send_email(dict_data['месяц'],
                                  dict_data['год'],
