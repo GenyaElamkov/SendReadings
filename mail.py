@@ -2,24 +2,29 @@ import smtplib
 import ssl
 from email.mime.text import MIMEText
 from email.utils import formataddr, make_msgid
-import config
 from string import Template
 import imaplib
 from time import sleep
+import configparser
 
+config = configparser.ConfigParser()
+config.read('settings.ini', encoding='utf-8')
 
-from_mail = config.FROM_MAIL  # Почта отправителя.
-to_mail = config.TO_MAIL  # Почта принимающая.
-password = config.PASSWORD  # Пароль отправителя.
-host_smtp = config.HOST_SMTP  # Хост для исходящий сообщений.
-port = config.PORT  # Порт для исходящих сообщений.
-sender_name = config.SENDER_NAME  # Отображение имени отправителя рядом с почтой.
-recipient_name = config.RECIPIENT_NAME  # Отображение имени почты кому приходит письмо.
-subject = config.SUBJECT  # Тема письма.
+from_mail = config['EMAIL_FROM']['FROM_MAIL']  # Почта отправителя.
+password = config['EMAIL_FROM']['PASSWORD']  # Пароль отправителя.
+sender_name = config['EMAIL_FROM']['SENDER_NAME']  # Отображение имени отправителя рядом с почтой.
 
-# For read mail.
-imap_server = config.IMAP_SERVER  # Хост для входящий сообщений.
-port_out = config.PORT_OUT  # Порт для входящих сообщений.
+to_mail = config['EMAIL_TO']['TO_MAIL']  # Почта принимающая.
+recipient_name = config['EMAIL_TO']['RECIPIENT_NAME']  # Отображение имени почты кому приходит письмо.
+
+host_smtp = config['SMTP_SSL']['HOST_SMTP']  # Хост для исходящий сообщений.
+port = int(config['SMTP_SSL']['PORT'])  # Порт для исходящих сообщений.
+
+subject = config['SUBJECT']['SUBJECT']  # Тема письма.
+
+# # For read mail.
+imap_server = config['IMAP']['IMAP_SERVER']  # Хост для входящий сообщений.
+# port_out = config['IMAP']['PORT_OUT']  # Порт для входящих сообщений.
 
 
 def send_email(month: str, year: int, t1: int, t2: int, t3: int) -> str:
