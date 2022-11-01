@@ -3,7 +3,6 @@ from datetime import datetime
 from tkinter import Label, Button, Entry, IntVar, StringVar
 from tkinter.messagebox import askyesno, showinfo
 from tkinter.ttk import Combobox
-
 from mail import send_email
 
 months = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь',
@@ -114,6 +113,10 @@ class Example(tk.Tk):
         self.displays_message(dict_data)
 
 
-if __name__ == "__main__":
+def main():
     app = Example()
     app.mainloop()
+
+
+if __name__ == "__main__":
+    main()
