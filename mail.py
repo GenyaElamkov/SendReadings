@@ -17,12 +17,13 @@ sender_name = config.SENDER_NAME  # Отображение имени отпра
 recipient_name = config.RECIPIENT_NAME  # Отображение имени почты кому приходит письмо.
 subject = config.SUBJECT  # Тема письма.
 
-# For save mail in Sent.
+# For read mail.
 imap_server = config.IMAP_SERVER  # Хост для входящий сообщений.
 port_out = config.PORT_OUT  # Порт для входящих сообщений.
 
 
 def send_email(month: str, year: int, t1: int, t2: int, t3: int) -> str:
+    """Sent mail"""
     # SMTP
     # s = smtplib.SMTP(host_smtp, port)
     # s.starttls()
@@ -75,6 +76,7 @@ def send_email(month: str, year: int, t1: int, t2: int, t3: int) -> str:
 
 
 def save_email_send(imap_server: str, from_mail: str, password: str) -> None:
+    """Save mail"""
     imap = imaplib.IMAP4_SSL(imap_server)
     imap.login(from_mail, password)
 
