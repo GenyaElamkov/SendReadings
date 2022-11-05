@@ -26,7 +26,10 @@ imap_server = config['IMAP']['IMAP_SERVER']  # Хост для входящий 
 
 
 def send_email(month: str, year: int, t1: int, t2: int, t3: int) -> str:
-    """Sent mail"""
+    """
+    Sent mail
+    t1, t2, t3 - показания электросчетчиков.
+    """
     context = ssl.create_default_context()
 
     text = f"""
@@ -49,14 +52,14 @@ def send_email(month: str, year: int, t1: int, t2: int, t3: int) -> str:
             recipients = [to_mail, from_mail]
 
             # Добавляет паузу между отправку сообщений на разные адреса.
-            for i, email in enumerate(recipients, 1):
+            for email in recipients:
                 msg['From'] = formataddr((sender_name, from_mail))
                 msg['To'] = formataddr((recipient_name, email))
                 msg['Subject'] = subject
                 msg['Message-ID'] = make_msgid()
 
                 s.sendmail(from_mail, email, msg.as_string())
-                sleep(10)
+                sleep(10)      # Время задержки отправки писем.
 
             save_email_send(imap_server, from_mail, password)
 
@@ -65,10 +68,15 @@ def send_email(month: str, year: int, t1: int, t2: int, t3: int) -> str:
         return f"{_ex}\nПожалуйста, проверьте свой логин или пароль!"
 
 
-def save_email_send(imap_server: str, from_mail: str, password: str) -> None:
-    """Save mail"""
-    imap = imaplib.IMAP4_SSL(imap_server)
-    imap.login(from_mail, password)
+def save_email_send(server: str, mail: str, parole: str) -> None:
+    """
+    Save mail
+    server - imap server.
+    mail - from mail.
+    parole - password mail.
+    """
+    imap = imaplib.IMAP4_SSL(server)
+    imap.login(mail, parole)
 
     imap.select('INBOX', readonly=False)
     result, data = imap.search(None, 'ALL')
