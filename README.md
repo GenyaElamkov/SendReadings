@@ -14,4 +14,5 @@
     настройки портов
     настройки email
     настройки темы письма
-    ![2023-01-18_18-16-54](https://user-images.githubusercontent.com/108394096/213211751-664de20b-b998-4aa5-ad3e-30b6a2348b79.png)
+  
+  ![2023-01-18_18-16-54](https://user-images.githubusercontent.com/108394096/213212042-7f38476b-913a-4d9c-be0d-695b55ae9d9c.png)
